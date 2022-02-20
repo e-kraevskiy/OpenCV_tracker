@@ -6,24 +6,27 @@
 #include <cstring>
 using namespace std;
 using namespace cv;
+
+std::string EXAMPLE_PATH = "./../test_data/testdata_cv_tracking_dudek.webm";
+
 int main( int argc, char** argv ){
   // show help
-  if(argc<2){
-    cout<<
-      " Usage: tracker <video_name>\n"
-      " examples:\n"
-      " example_tracking_kcf Bolt/img/%04d.jpg\n"
-      " example_tracking_kcf faceocc2.webm\n"
-      << endl;
-    return 0;
-  }
+//  if(argc<2){
+//    cout<<
+//      " Usage: tracker <video_name>\n"
+//      " examples:\n"
+//      " example_tracking_kcf Bolt/img/%04d.jpg\n"
+//      " example_tracking_kcf faceocc2.webm\n"
+//      << endl;
+//    return 0;
+//  }
   // declares all required variables
   Rect2i roi;
   Mat frame;
   // create a tracker object
   Ptr<Tracker> tracker = TrackerKCF::create();
   // set input video
-  std::string video = argv[1];
+  std::string video = EXAMPLE_PATH;//argv[1];
   VideoCapture cap(video);
   // get bounding box
   cap >> frame;
