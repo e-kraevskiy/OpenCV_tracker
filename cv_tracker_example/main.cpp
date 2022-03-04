@@ -7,26 +7,18 @@
 using namespace std;
 using namespace cv;
 
-std::string EXAMPLE_PATH = "./../test_data/testdata_cv_tracking_dudek.webm";
+const std::string EXAMPLE_PATH = "../test_data/testdata_cv_tracking_dudek.webm";
+const std::string FISHING_PATH = "../test_data/input.mp4";
 
 int main( int argc, char** argv ){
-  // show help
-//  if(argc<2){
-//    cout<<
-//      " Usage: tracker <video_name>\n"
-//      " examples:\n"
-//      " example_tracking_kcf Bolt/img/%04d.jpg\n"
-//      " example_tracking_kcf faceocc2.webm\n"
-//      << endl;
-//    return 0;
-//  }
+
   // declares all required variables
   Rect2i roi;
   Mat frame;
   // create a tracker object
   Ptr<Tracker> tracker = TrackerKCF::create();
   // set input video
-  std::string video = EXAMPLE_PATH;//argv[1];
+  std::string video = EXAMPLE_PATH;
   VideoCapture cap(video);
   // get bounding box
   cap >> frame;
