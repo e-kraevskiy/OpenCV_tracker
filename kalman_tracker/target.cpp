@@ -10,6 +10,9 @@ Target::Target()//Class for the tracking targets
 	x = -1;
 	y = -1;
 	LastTrackingFrame = -1;
+    // 4 - Dimensionality of the state
+    // 2 - Dimensionality of the measurement
+    // 0 - Dimensionality of the control vector
 	kalman = new KalmanFilter(4, 2, 0); 
 	Mat state(4, 1, CV_32F); /* (phi, delta_phi) */
 	Mat processNoise(4, 1, CV_32F);
@@ -17,6 +20,7 @@ Target::Target()//Class for the tracking targets
 	char code = (char)-1;
 
 	randn(state, Scalar::all(0), Scalar::all(0.1));
+    //*************** Вот это не понятно ************************************//
 	kalman->transitionMatrix = (Mat_<float>(4, 4) <<
 		1, 0, 1, 0,
 		0, 1, 0, 1,
@@ -44,23 +48,28 @@ Target::~Target()
 {
 }
 
-bool Target::sameTarget(Target newTarget)
-{	// Estimate if the given target is the same target as this one.	
+bool Target::sameTarget(Target newTarget) {
+    // Estimate if the given target is the same target as this one.
 	int area = width*height;
 	int newArea = newTarget.width*newTarget.height;
-	if (5 * area < newArea || area>5 * newArea)
+    if (5 * area < newArea || area > 5 * newArea)
 		return false;
 	Mat prediction = kalman->predict();
 	Point predictCenter(prediction.at<float>(0), prediction.at<float>(1));
-	if (predictCenter.x > newTarget.x&&predictCenter.x < (newTarget.x + newTarget.width) && predictCenter.y>newTarget.y&&predictCenter.y < (newTarget.y + newTarget.height))
-	{
+    // Проверка на отколение нового Target'a от предсказанного
+    if (predictCenter.x > newTarget.x
+            && predictCenter.x < (newTarget.x + newTarget.width)
+            && predictCenter.y > newTarget.y
+            && predictCenter.y < (newTarget.y + newTarget.height)) {
 		return true;
 	}
-	else if (newTarget.center().x > x&&newTarget.center().x < (x + width) && newTarget.center().y>y&&newTarget.center().y < (y + height))
-	{
+    // Проверка на отколение нового Target'a от текущего
+    else if (newTarget.center().x > x
+             && newTarget.center().x < (x + width)
+             && newTarget.center().y > y
+             && newTarget.center().y < (y + height)) {
 		return true;
 	}
-	
 	return false;
 }
 

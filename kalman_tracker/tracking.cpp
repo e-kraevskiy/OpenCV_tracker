@@ -13,8 +13,7 @@ Tracking::~Tracking()
 
 }
 
-int Tracking::DisplayResult(int nTime)
-{
+int Tracking::DisplayResult(int nTime) {
 	printf("Current frame: %d\n", nFrame);
 
 	imshow("Origin Image", m_mSrcFrame3);
@@ -24,33 +23,31 @@ int Tracking::DisplayResult(int nTime)
 	return REPLY_OK;
 }
 
-int Tracking::GetFrameNum()
-{
+int Tracking::GetFrameNum() {
 	return nFrame;
 }
 
-int Tracking::CreateResultVideo()
-{
-	m_pWriterTracking = new VideoWriter("tracking.wmv", VideoWriter::fourcc('W', 'M', 'V', '1'), 25, Size(m_mSrcFrame3.size().width, m_mSrcFrame3.size().height), 1);
+int Tracking::CreateResultVideo() {
+    m_pWriterTracking = new VideoWriter("tracking.wmv",
+                                        VideoWriter::fourcc('W', 'M', 'V', '1'),
+                                        25, Size(m_mSrcFrame3.size().width,
+                                                 m_mSrcFrame3.size().height), 1);
 
 	return REPLY_OK;
 }
 
-int Tracking::WriteResultVideo()
-{
+int Tracking::WriteResultVideo() {
 	//IplImage pWrite = IplImage(m_mSrcFrame3);
 	//cvWriteFrame(m_pWriterTracking, &pWrite);   //Write the display image to the output video
 	return REPLY_OK;
 }
 
-int Tracking::ReleaseResultVideo()
-{
+int Tracking::ReleaseResultVideo() {
 	//cvReleaseVideoWriter(&m_pWriterTracking);
 	return REPLY_OK;
 }
 
-int Tracking::LoadSequence(std::string pcFileName)
-{
+int Tracking::LoadSequence(std::string pcFileName) {
 	m_pVideoCapture.open(pcFileName);
 	if (!m_pVideoCapture.isOpened())
 	{
@@ -61,29 +58,23 @@ int Tracking::LoadSequence(std::string pcFileName)
 }
 
 
-int Tracking::LoadNextFrame()
-{
-	if (!m_pVideoCapture.read(m_mSrcFrame3))
-	{
+int Tracking::LoadNextFrame() {
+    if (!m_pVideoCapture.read(m_mSrcFrame3)) {
 		return REPLY_ERR;
 	}
-	else
-	{
+    else {
 		nFrame = nFrame + 1;
 		return REPLY_OK; 
 	}
-
 	return REPLY_OK;
 }
 
-int Tracking::ProcessImage()
-{
+int Tracking::ProcessImage() {
 	cvtColor(m_mSrcFrame3, m_mSrcFrame, COLOR_RGB2GRAY); //Convert 3 channel RGB image to Gray image
 
 	Mat mGaussian;
 	GaussianBlur(m_mSrcFrame, mGaussian, Size(9, 9), 0);  //Gaussian blur
-	for (int i = 0; i < 5; i++)
-	{
+    for (int i = 0; i < 5; i++)	{
 		GaussianBlur(mGaussian, mGaussian, Size(9, 9), 0);
 	}
 
@@ -96,8 +87,7 @@ int Tracking::ProcessImage()
 	absdiff(m_mSrcFrame, mGaussian, mDiff); //absolute value of the difference between original image and Gaussian blured image
 
 	GaussianBlur(mDiff, m_mDiffGaussian, Size(9, 9), 0); //Gaussian blur
-	for (int i = 0; i < 1; i++)
-	{
+    for (int i = 0; i < 1; i++) {
 		GaussianBlur(m_mDiffGaussian, m_mDiffGaussian, Size(9, 9), 0);
 	}
 	Mat mOtsuThreshold;
@@ -105,8 +95,7 @@ int Tracking::ProcessImage()
 	return REPLY_OK;
 }
 
-int Tracking::DetectTarget()
-{
+int Tracking::DetectTarget() {
 	Mat mSub, mSubOtsuThreshold;
 	Mat pThreshold = m_mThreshold.clone();
 	vector<vector<Point> > contours;
@@ -123,7 +112,8 @@ int Tracking::DetectTarget()
 			Rect r = boundingRect(contours[i]);
 			if (tmparea > MIN_TARGET_SIZE)	//If the area);
 			mSub = m_mDiffGaussian(Range(r.y, r.y + r.height), Range(r.x, r.x + r.width));
-			threshold(mSub, mSubOtsuThreshold, 20, 255, THRESH_OTSU); //Otsu thresholding at the local area around the target.
+            //Otsu thresholding at the local area around the target.
+            threshold(mSub, mSubOtsuThreshold, 20, 255, THRESH_OTSU);
 			Mat kernel;
 			//Morphological filtering to remove small areas.
 			for (int j = 0; j < 3; j++)
@@ -154,14 +144,13 @@ int Tracking::DetectTarget()
 			findContours(pThresholdOpt, contours1, hierarchy1, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 			// Search for connected domains in the result of local otsu thresholding
 			
-			for (int j=0; j!= contours1.size(); j++)
-			{
+            for (int j=0; j!= contours1.size(); j++) {
 				double tmparea = fabs(contourArea(contours1[j]));
 
 				Rect r = boundingRect(contours1[j]);
 
 				if (tmparea < MIN_TARGET_SIZE) //If the area of the connected domain is smaller than dynamicArea, it is removed.  
-				{
+{
 					continue;
 				}
 
